@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Len & Ariki 恋爱扭蛋机 Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #98ff98;      /* 薄荷绿 */
+            --primary-dark: #7acc7a; /* 深薄荷 */
+            --secondary: #e0f7fa;    /* 浅蓝背景 */
+            --accent: #ff8fab;       /* 樱花粉装饰 */
+            --glass: rgba(255, 255, 255, 0.6);
+            --shadow: rgba(0, 0, 0, 0.1);
+            --text: #5d7575;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background: radial-gradient(circle at top right, #e0f2f1, #b2dfdb);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: var(--text);
+            user-select: none;
+        }
+
+        /* 装饰背景圆点 */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(var(--primary) 15%, transparent 16%),
+                              radial-gradient(var(--primary) 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        /* 标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            color: #fff;
+            text-shadow: 2px 2px 0px var(--primary-dark), 4px 4px 0px rgba(0,0,0,0.1);
+            margin: 0;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 0.9rem;
+            background: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: var(--primary-dark);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        /* 扭蛋机主体 */
+        .machine {
+            position: relative;
+            width: 300px;
+            height: 480px;
+            background: white;
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 
+                0 20px 50px rgba(0,128,128,0.15),
+                inset 0 -10px 20px rgba(0,0,0,0.02);
+            border: 8px solid white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 顶部装饰盖 */
+        .machine::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            width: 120px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 20px 20px 0 0;
+            z-index: -1;
+        }
+
+        /* 玻璃罩 */
+        .dome {
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle at 70% 30%, rgba(255,255,255,0.9), rgba(224, 247, 250, 0.4));
+            border-radius: 50%;
+            border: 6px solid #eefcfc;
+            box-shadow: 
+                inset 10px 10px 20px rgba(255,255,255,0.8),
+                inset -5px -10px 15px rgba(0,128,128,0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 10;
+        }
+
+        /* 高光反射 */
+        .dome::after {
+            content: '';
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 40px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transform: rotate(-45deg);
+            opacity: 0.6;
+            filter: blur(2px);
+        }
+
+        /* 扭蛋球 */
+        .capsule {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 
+                inset -3px -3px 5px rgba(0,0,0,0.1),
+                2px 5px 5px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,255,255,0.4);
+            transition: transform 0.3s;
+        }
+        
+        /* 球的一半颜色 */
+        .capsule::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 50%;
+            background: rgba(255,255,255,0.4);
+            border-radius: 0 0 25px 25px;
+            pointer-events: none;
+        }
+
+        /* 机器下半部分 */
+        .controls-area {
+            margin-top: -30px;
+            width: 100%;
+            height: 220px;
+            background: var(--primary);
+            border-radius: 30px;
+            position: relative;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        /* 出口 */
+        .outlet {
+            width: 80px;
+            height: 50px;
+            background: #333;
+            border-radius: 10px 10px 20px 20px;
+            position: absolute;
+            bottom: 20px;
+            border: 4px solid #fff;
+        }
+
+        /* 按钮 */
+        .btn-spin {
+            width: 160px;
+            height: 60px;
+            background: white;
+            border: none;
+            border-radius: 30px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #dbf0f0;
+            transition: all 0.1s;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-spin:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #dbf0f0;
+        }
+
+        .btn-spin:disabled {
+            background: #f0f0f0;
+            color: #ccc;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* 动画关键帧：球的疯狂搅动 */
+        @keyframes mix {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-40px, -60px) rotate(90deg); }
+            50% { transform: translate(30px, -80px) rotate(180deg); }
+            75% { transform: translate(-20px, -40px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .mixing .capsule {
+            animation: mix 0.6s infinite ease-in-out alternate;
+        }
+
+        /* 弹窗 */
+        .modal-mask {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(93, 117, 117, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal {
+            background: white;
+            width: 80%;
+            max-width: 320px;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 5px solid var(--primary);
+        }
+
+        .modal.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+            display: inline-block;
+            animation: float 2s infinite;
+        }
+
+        .result-title {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin: 10px 0;
+        }
+
+        .result-desc {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn-close {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 40px;
+            border-radius: 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(152, 255, 152, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>LEN & ARIKI</h1>
+        <div class="subtitle">Only_You 专属扭蛋机 Ver 2.0</div>
+    </div>
+
+    <div class="machine">
+        <div class="dome" id="dome">
+            </div>
+
+        <div class="controls-area">
+            <button class="btn-spin" id="spinBtn" onclick="startGacha()">PULL !</button>
+            <div class="outlet"></div>
+        </div>
+    </div>
+
+    <div class="modal-mask" id="modal">
+        <div class="modal" id="modalContent">
+            <div class="result-icon" id="resIcon">🎁</div>
+            <h2 class="result-title" id="resTitle">奖励名称</h2>
+            <p class="result-desc" id="resDesc">描述文本</p>
+            <button class="btn-close" onclick="closeModal()">收下啦 ❤️</button>
+        </div>
+    </div>
+
+<script>
+    // 配置球球的颜色和图标
+    const colors = ['#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff', '#bdb2ff', '#ffc6ff'];
+    const icons = ['🦊', '🐱', '💖', '🍬', '🎮', '✈️', '🛁', '🎀'];
+
+    const dome = document.getElementById('dome');
+    const balls = [];
+
+    // 初始化：生成球球
+    function initBalls() {
+        // 清空
+        dome.innerHTML = '';
+        
+        // 生成12个球
+        for(let i=0; i<12; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'capsule';
+            // 随机颜色
+            ball.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            // 随机位置（堆在底部）
+            const randomLeft = 20 + Math.random() * 150;
+            const randomTop = 120 + Math.random() * 60;
+            
+            ball.style.left = randomLeft + 'px';
+            ball.style.top = randomTop + 'px';
+            // 随机旋转
+            ball.style.transform = `rotate(${Math.random() * 360}deg)`;
+            
+            // 随机图标
+            ball.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            
+            dome.appendChild(ball);
+            balls.push(ball);
+        }
+    }
+
+    initBalls();
+
+    // 奖品数据（Only_You专属）
+    const prizes = [
+        { level: 'SSR', icon: '💳', title: 'Len的附属黑卡', desc: '随便刷，密码是你生日反过来。' },
+        { level: 'SSR', icon: '✈️', title: '说走就走机票', desc: '现在就出发，去你想去的任何国家。' },
+        { level: 'SR', icon: '🛁', title: '全套SPA服务', desc: '由Len亲自服务，可能会有点...热。' },
+        { level: 'SR', icon: '🍽️', title: '点菜权', desc: '今晚吃什么，全听猫猫的。' },
+        { level: 'SR', icon: '👗', title: '清空购物车', desc: '那些裙子，全部买下来。' },
+        { level: 'R', icon: '💋', title: '额头亲亲 x1', desc: '么么哒~' },
+        { level: 'R', icon: '💆‍♂️', title: '吹头发', desc: '洗完澡乖乖坐好。' },
+        { level: 'R', icon: '🎒', title: '背你一公里', desc: '上来，狐狸背你。' },
+        { level: 'R', icon: '🗣️', title: '叫一声“老婆”', desc: '看着眼睛叫哦。' }
+    ];
+
+    function startGacha() {
+        const btn = document.getElementById('spinBtn');
+        btn.disabled = true;
+        btn.innerText = "扭蛋中...";
+
+        // 1. 开始动画：加 mixing 类
+        dome.classList.add('mixing');
+
+        // 2. 模拟物理混乱
+        balls.forEach(ball => {
+            // 给每个球一个稍有不同的动画延迟，看起来更乱
+            ball.style.animationDelay = `-${Math.random()}s`;
+        });
+
+        // 3. 2秒后出结果
+        setTimeout(() => {
+            dome.classList.remove('mixing');
+            // 抽奖逻辑
+            const prize = getPrize();
+            showModal(prize);
+            
+            btn.disabled = false;
+            btn.innerText = "PULL !";
+            
+            // 重置球的位置
+            initBalls();
+        }, 2000);
+    }
+
+    function getPrize() {
+        // 简单权重：SSR 5%, SR 25%, R 70%
+        const r = Math.random();
+        if(r < 0.05) return prizes.filter(p => p.level === 'SSR')[Math.floor(Math.random()*2)]; // 随机SSR
+        if(r < 0.30) return prizes.filter(p => p.level === 'SR')[Math.floor(Math.random()*3)];
+        return prizes.filter(p => p.level === 'R')[Math.floor(Math.random()*4)];
+    }
+
+    function showModal(prize) {
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('modalContent');
+        
+        document.getElementById('resIcon').innerText = prize.icon;
+        document.getElementById('resTitle').innerText = prize.title;
+        document.getElementById('resTitle').style.color = prize.level === 'SSR' ? '#ff9f43' : '#98ff98';
+        document.getElementById('resDesc').innerText = prize.desc;
+        
+        modal.style.display = 'flex';
+        // 强制重绘
+        void modal.offsetWidth;
+        content.classList.add('show');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        const content = document.getElementById('modalContent');
+        content.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+
+</script>
+
+</body>
+</html>
